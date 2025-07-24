@@ -1,7 +1,7 @@
 http://localhost:5267/swagger/index.html - Order Service
 http://localhost:5262/swagger/index.html - Product Service
 
-REST API + RabbittMQ
+REST API + RabbittMQ ( использовал  еще MediatR и AutoMapper )
 
 [Order publisher](OrderService/OrderService.Infrastructure/Persistence/RabbitMQ/RabbitMqPublisher.cs)
 [Product consumer](ProductService/ProductService.Infrastructure/Persistence/RabbitMQ/RabbitMqConsumer.cs)
