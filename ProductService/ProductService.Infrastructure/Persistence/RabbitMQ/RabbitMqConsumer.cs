@@ -39,7 +39,7 @@ public class RabbitMqConsumer<TRequest>(
         
 
         await _channel.QueueDeclareAsync(
-            queue: "check_products_queue",
+            queue: options.Value.QueueName,
             durable: false,
             exclusive: false,
             autoDelete: false,

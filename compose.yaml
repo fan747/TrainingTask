@@ -1,0 +1,42 @@
+﻿services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: [ "CMD", "rabbitmqctl", "status" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      
+  product-service:
+    image: product-service
+    build:
+      context: ./ProductService
+      dockerfile: Dockerfile
+    ports:
+      - "5262:8080"
+    depends_on:
+        rabbitmq:
+          condition: service_healthy
+    environment:
+      - RabbitMQ__HostName=rabbitmq
+      - RabbitMQ__Port=5672
+      - RabbitMQ__UserName=guest
+      - RabbitMQ__Password=guest
+  order-service:
+    image: order-service
+    build:
+      context: ./OrderService
+      dockerfile: Dockerfile
+    ports:
+      - "5267:8080"
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      - RabbitMQ__HostName=rabbitmq
+      - RabbitMQ__Port=5672
+      - RabbitMQ__UserName=guest
+      - RabbitMQ__Password=guest
