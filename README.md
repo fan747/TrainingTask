@@ -1,5 +1,8 @@
 http://localhost:5267/swagger/index.html - Order Service
+
 http://localhost:5262/swagger/index.html - Product Service
+
+Для запуска надо сбилдить compose.yaml
 
 REST API + RabbittMQ ( использовал  еще MediatR и AutoMapper )
 
