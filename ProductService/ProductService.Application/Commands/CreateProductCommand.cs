@@ -4,4 +4,4 @@ using ProductService.Application.Results;
 
 namespace ProductService.Application.Commands;
 
-public record CreateProductCommand(CreateProductDto CreateProductDto) : IRequest<Result>;
+public record CreateProductCommand(CreateProductDto CreateProductDto) : IRequest<Result<ProductDto>>;

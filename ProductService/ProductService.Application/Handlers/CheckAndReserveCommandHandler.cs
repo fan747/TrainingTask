@@ -14,16 +14,16 @@ public class CheckAndReserveCommandHandler(
     {
         try
         {
-            var product = await unitOfWork.ProductRepository.GetById(request.CheckProductDto.ProductId);
+            var product = await unitOfWork.ProductRepository.GetById(request.CheckProductDto.ProductId, cancellationToken);
 
             if (product == null)
             {
-                throw new Exception("Product not found");
+                return Result<CheckProductDto>.Failure(ErrorType.NotFound, "Product not found");
             }
 
             if (product.Quantity < request.CheckProductDto.Quantity)
             {
-                throw new Exception("Insufficient quantity of product");
+                return Result<CheckProductDto>.Failure(ErrorType.BadRequest, "Not enough quantity");
             }
             
             product.Update(
@@ -32,13 +32,13 @@ public class CheckAndReserveCommandHandler(
                 product.Price
             );
 
-            await unitOfWork.ProductRepository.UpdateAsync(product);
+            await unitOfWork.ProductRepository.UpdateAsync(product, cancellationToken);
             await unitOfWork.SaveChangesAsync(cancellationToken);
             return Result<CheckProductDto>.Success(request.CheckProductDto);       
         }
         catch (Exception e)
         {
-            return Result<CheckProductDto>.Failure(e.Message);
+            return Result<CheckProductDto>.Failure(ErrorType.InternalServerError, e.Message);
         }
     }
 }

@@ -19,7 +19,7 @@ public class GetOrderByIdQueryHandler(
             
             if (order == null)
             {
-                throw new Exception("Order not found");
+                return Result<OrderDto>.Failure(ErrorType.NotFound,"Order not found");
             }
             
             var orderDto = mapper.Map<OrderDto>(order);
@@ -28,7 +28,7 @@ public class GetOrderByIdQueryHandler(
         }
         catch (Exception e)
         {
-            return Result<OrderDto>.Failure(e.Message);
+            return Result<OrderDto>.Failure( ErrorType.InternalServerError,e.Message);
         }
     }
 }

@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using ProductService.Application.Abstractions;
 using ProductService.Application.DTOs;
 using ProductService.Application.Handlers;
@@ -22,7 +23,7 @@ builder.Services.AddSwaggerGen(cfg =>
 
 builder.Services.AddDbContext<ProductDbContext>(cfg =>
 {
-    cfg.UseInMemoryDatabase(databaseName: "Products");
+    cfg.UseInMemoryDatabase(databaseName: "Products").ConfigureWarnings(warnings => warnings.Ignore(InMemoryEventId.TransactionIgnoredWarning));
 });
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();

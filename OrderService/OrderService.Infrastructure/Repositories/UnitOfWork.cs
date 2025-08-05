@@ -1,4 +1,5 @@
-﻿using OrderService.Application.Handlers;
+﻿using OrderService.Application.Abstractions;
+using OrderService.Application.Handlers;
 using OrderService.Infrastructure.Persistence;
 
 namespace OrderService.Infrastructure.Repositories;
@@ -13,10 +14,9 @@ public class UnitOfWork(
     {
         get { return _orderRepository ??= new OrderRepository(context); }
     }
-    public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
-    {
-        context.SaveChanges();
-        return Task.FromResult(0);   
-    }
+
+    public IIdempotencyRepository IdempotencyKeyRepository => new IdempotencyKeyRepository(context);
+
+    public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default) => await context.SaveChangesAsync(cancellationToken);
     
 }

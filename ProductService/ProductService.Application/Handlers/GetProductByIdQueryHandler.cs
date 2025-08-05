@@ -17,11 +17,11 @@ public class GetProductByIdQueryHandler(
     {
         try
         {
-            var product = await repository.ProductRepository.GetById(request.Id);
+            var product = await repository.ProductRepository.GetById(request.Id, cancellationToken);
 
             if (product == null)
             {
-                throw new Exception("Product not found");
+                return Result<ProductDto>.Failure(ErrorType.NotFound, "Product not found");
             }
             
             var productDto = mapper.Map<ProductDto>(product);
@@ -29,7 +29,7 @@ public class GetProductByIdQueryHandler(
         }
         catch (Exception e)
         {
-            return Result<ProductDto>.Failure(e.Message);
+            return Result<ProductDto>.Failure(ErrorType.InternalServerError, e.Message);
         }
     }
 }

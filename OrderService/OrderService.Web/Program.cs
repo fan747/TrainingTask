@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using OrderService.Application.Abstractions;
 using OrderService.Application.DTOs;
 using OrderService.Application.Handlers;
@@ -25,7 +26,7 @@ builder.Services.AddMediatR(cfg =>
 
 builder.Services.AddDbContext<OrderDbContext>(cfg =>
 {
-    cfg.UseInMemoryDatabase(databaseName: "Orders");
+    cfg.UseInMemoryDatabase(databaseName: "Orders").ConfigureWarnings(warnings => warnings.Ignore(InMemoryEventId.TransactionIgnoredWarning));
 });
 
 builder.Services.AddAutoMapper(cfg =>

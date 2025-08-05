@@ -2,4 +2,5 @@
 
 public record CheckProductDto(
     int ProductId,
-    int Quantity);
+    int Quantity
+    );

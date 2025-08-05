@@ -13,11 +13,21 @@ public class UpdateProductCommandHandler(
     {
         try
         {
-            var product = await repository.ProductRepository.GetById(request.ProductDto.Id);
+            if (request.ProductDto.Quantity <= 0)
+            {
+                return Result.Failure(ErrorType.BadRequest, "Quantity must be greater than 0");    
+            }
+
+            if (request.ProductDto.Price <= 0)
+            {
+                return Result.Failure(ErrorType.BadRequest, "Price must be greater than 0");    
+            }
+            
+            var product = await repository.ProductRepository.GetById(request.ProductDto.Id, cancellationToken);
 
             if (product == null)
             {
-                throw new Exception("Product not found"); 
+                return Result.Failure(ErrorType.NotFound, "Product not found");
             }
             
             product.Update(
@@ -26,14 +36,14 @@ public class UpdateProductCommandHandler(
                 request.ProductDto.Price ?? product.Price
                 );
             
-            await repository.ProductRepository.UpdateAsync(product);
+            await repository.ProductRepository.UpdateAsync(product, cancellationToken);
             await repository.SaveChangesAsync(cancellationToken);
             return Result.Success(); 
             
         }
         catch (Exception e)
         {
-            return Result.Failure(e.Message);
+            return Result.Failure(ErrorType.InternalServerError, e.Message);
         }
     }
 }

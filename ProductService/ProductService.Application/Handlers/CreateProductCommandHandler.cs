@@ -11,20 +11,31 @@ namespace ProductService.Application.Handlers;
 public class CreateProductCommandHandler(
     IUnitOfWork repository,
     IMapper mapper   
-    ) : IRequestHandler<CreateProductCommand, Result>
+    ) : IRequestHandler<CreateProductCommand, Result<ProductDto>>
 {
-    public async Task<Result> Handle(CreateProductCommand request, CancellationToken cancellationToken)
+    public async Task<Result<ProductDto>> Handle(CreateProductCommand request, CancellationToken cancellationToken)
     {
         try
         {
+            if (request.CreateProductDto.Quantity <= 0)
+            {
+                return Result<ProductDto>.Failure(ErrorType.BadRequest, "Quantity must be positive");
+            }
+            
+            if (request.CreateProductDto.Price <= 0)
+            {
+                return Result<ProductDto>.Failure(ErrorType.BadRequest, "Price must be positive");
+            }
+
             var product = mapper.Map<Product>(request.CreateProductDto);
-            await repository.ProductRepository.AddAsync(product);
+            var createdProduct = await repository.ProductRepository.AddAsync(product, cancellationToken);
             await repository.SaveChangesAsync(cancellationToken);
-            return Result.Success();       
+            var createdProductDto = mapper.Map<ProductDto>(createdProduct);
+            return Result<ProductDto>.Success(createdProductDto);       
         }
         catch (Exception e)
         {
-            return Result.Failure(e.Message);       
+            return Result<ProductDto>.Failure(ErrorType.InternalServerError, e.Message);       
         }
     }
 }

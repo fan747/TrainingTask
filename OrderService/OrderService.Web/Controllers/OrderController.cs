@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using OrderService.Application.Commands;
 using OrderService.Application.DTOs;
 using OrderService.Application.Queries;
+using OrderService.Application.Results;
 
 namespace OrderService.Web.Controllers;
 
@@ -13,20 +14,34 @@ public class OrderController(
     ) : ControllerBase
 {
     [HttpPost]
-    public async Task<IResult> Add([FromBody] CheckProductDto checkProduct)
+    public async Task<ActionResult<OrderDto>> Add([FromBody] CreateOrderDto createOrder)
     {
-        var command = new CreateOrderCommand(checkProduct);
+        var command = new CreateOrderCommand(createOrder.IdempotencyKey, createOrder.CheckProduct);
         var result = await mediator.Send(command);
-        
-        return result.IsSuccess ? Results.NoContent() : Results.BadRequest(result.ErrorMessage);       
+
+        return result.ErrorType switch
+        {
+            ErrorType.BadRequest => BadRequest(result.ErrorMessage),
+            ErrorType.NotFound => NotFound(result.ErrorMessage),
+            ErrorType.InternalServerError => StatusCode(500, result.ErrorMessage),
+            null => Ok(result.Data),
+            _ => StatusCode(500, result.ErrorMessage)
+        };
     }
 
     [HttpGet("{id:int}")]
-    public async Task<IResult> Get([FromRoute] int id)
+    public async Task<ActionResult<OrderDto>> Get([FromRoute] int id)
     {
         var query = new GetOrderByIdQuery(id);
         var result = await mediator.Send(query);
         
-        return result.IsSuccess ? Results.Ok(result.Data) : Results.BadRequest(result.ErrorMessage);      
+        return result.ErrorType switch
+        {
+            ErrorType.BadRequest => BadRequest(result.ErrorMessage),
+            ErrorType.NotFound => NotFound(result.ErrorMessage),
+            ErrorType.InternalServerError => StatusCode(500, result.ErrorMessage),
+            null => Ok(result.Data),
+            _ => StatusCode(500, result.ErrorMessage)
+        };      
     }
 }
